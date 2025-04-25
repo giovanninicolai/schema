@@ -1,0 +1,182 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
+<diagram name="Pagina-1" id="wbU-Uvh0e5xAI6HFP_HH">
+<mxGraphModel dx="7678" dy="4958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" edge="1" source="3" target="4" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="3010" y="1905"/>
+</Array>
+<mxPoint x="3657.5" y="1915" as="sourcePoint"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="3" value="<p style="margin:0px;margin-top:4px;text-align:center;"><br></p><p style="margin:0px;margin-top:4px;text-align:center;"><b>DatabaseDriverFactory</b></p><p style="margin:0px;margin-top:4px;text-align:center;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ DatabaseDriverFactory( context : Context)</p><p style="margin:0px;margin-left:4px;">+ create(): AndroidSqliteDriver</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="2830" y="1780" width="320" height="130" as="geometry"/>
+</mxCell>
+<mxCell id="4" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i><br><b>DatabaseDriverFactory</b><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ create(): SqlDriver<br><br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="2915" y="1495" width="190" height="110" as="geometry"/>
+</mxCell>
+<mxCell id="5" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i><br><b>HttpClientFactory</b><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ createPlatformClient(): HttpClient<br><br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="574" y="1640" width="200" height="110" as="geometry"/>
+</mxCell>
+<mxCell id="6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;endArrow=open;endFill=0;" edge="1" source="7" target="5" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="674" y="1915"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="7" value="<p style="margin:0px;margin-top:4px;text-align:center;"><br></p><p style="margin:0px;margin-top:4px;text-align:center;"><b>HttpClientFactory</b></p><p style="margin:0px;margin-top:4px;text-align:center;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ createPlatformClient(): HttpClient(Android)<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="520" y="1915" width="320" height="120" as="geometry"/>
+</mxCell>
+<mxCell id="8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" edge="1" source="10" target="27" parent="1">
+<mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;startFill=0;startArrow=diamondThin;" edge="1" source="10" target="5" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="1406" y="1010"/>
+<mxPoint x="1406" y="1695"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="10" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Abstract&gt;&gt;</i><br><b>ChannelsProvider</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ httpclient : HttpClient</p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ abstract getChannels(parameter : ServiceParameter): List&lt;Channel&gt;<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="460" y="960" width="440" height="100" as="geometry"/>
+</mxCell>
+<mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" source="12" target="10" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="276" y="1160"/>
+<mxPoint x="560" y="1160"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="12" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>YoutubeAPI</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ YoutubeAPI(httpClient : HttpClient)</p><p style="margin:0px;margin-left:4px;">+ suspend getChannels(token : YoutubeParameter): List&lt;Channel&gt;</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="20" y="1240" width="370" height="90" as="geometry"/>
+</mxCell>
+<mxCell id="13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" source="14" target="10" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="645" y="1310"/>
+<mxPoint x="645" y="1310"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="14" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>TwichAPI</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ TwitchAPI(httpClient: HttpClient)</p><p style="margin:0px;margin-left:4px;">+ suspend getChannels( token : TwitchParameter): List&lt;Channel&gt;</p><p style="margin:0px;margin-left:4px;">-&nbsp; suspend getUserId(token : TwitchParameter) : String?</p><p style="margin:0px;margin-left:4px;">-&nbsp; suspend getFollowedChannels(userId : String, token : TwitchParameter) : List&lt;TwitchChannelInfo&gt;</p><p style="margin:0px;margin-left:4px;">-&nbsp; suspend getProfileImage(channeldId : String, token : TwitchParameter ) : String</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="410" y="1240" width="546" height="140" as="geometry"/>
+</mxCell>
+<mxCell id="15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" source="16" target="10" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="1040" y="1160"/>
+<mxPoint x="750" y="1160"/>
+</Array>
+<mxPoint x="1059.999999999999" y="1360" as="sourcePoint"/>
+<mxPoint x="750.0000000000009" y="1060" as="targetPoint"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="16" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>M3UAPI</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ M3UAPI(httpClient : HttpClient)</p><p style="margin:0px;margin-left:4px;">+ suspend getChannels( url : M3UParameter): List&lt;Channel&gt;</p><p style="margin:0px;margin-left:4px;">-&nbsp; mapEntriesToChannels(entries : List&lt;M3uEntry&gt;) : List&lt;Channel&gt;</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="976" y="1240" width="380" height="110" as="geometry"/>
+</mxCell>
+<mxCell id="17" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i><br><b>ChannelsDAO</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ getChannels(type : ChannelType) : List&lt;Channel&gt;</p><p style="margin:0px;margin-left:4px;">+ addChannels(channels : List&lt;Channel&gt;)</p><p style="margin:0px;margin-left:4px;">+ clearChannelsType(type : ChannelType)</p><p style="margin:0px;margin-left:4px;"><br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="2020.75" y="520" width="342.5" height="150" as="geometry"/>
+</mxCell>
+<mxCell id="18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" edge="1" source="20" target="17" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="2190" y="840"/>
+<mxPoint x="2190" y="840"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" edge="1" source="20" target="22" parent="1">
+<mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="20" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>ChannelsDAOImpl</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">- database : AppDatabase&nbsp;</p><p style="margin:0px;margin-left:4px;">- queries : AppDatabaseQueries</p><hr size="1" style="border-style:solid;"><p style="margin: 0px 0px 0px 4px;">+ ChannelsDAOImpl(database : AppDatabase)</p><p style="margin: 0px 0px 0px 4px;">+ getChannels(type : ChannelType) : List&lt;Channel&gt;</p><p style="margin: 0px 0px 0px 4px;">+ addChannel(channel : Channel)</p><p style="margin: 0px 0px 0px 4px;">+ clearChannelsType(type : ChannelType)</p><p style="margin: 0px 0px 0px 4px;"><br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="2045.75" y="960" width="317.5" height="150" as="geometry"/>
+</mxCell>
+<mxCell id="21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;" edge="1" source="22" target="4" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="3010.5" y="1365"/>
+<mxPoint x="3010.5" y="1365"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="22" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>AppDatabaseFactory</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ driver : SqlDriver<br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ create() : AppDatabase<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="2915" y="990" width="190" height="90" as="geometry"/>
+</mxCell>
+<mxCell id="23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" edge="1" source="25" target="22" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="3520" y="1035"/>
+<mxPoint x="3520" y="1035"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=block;endFill=0;" edge="1" source="25" target="26" parent="1">
+<mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="25" value="<p style="margin:0px;margin-top:4px;text-align:center;"><b>UserListDAOImpl</b></p><hr size="1" style="border-style:solid;"><p style="margin: 0px 0px 0px 4px;">- database : AppDatabase&nbsp;</p><p style="margin: 0px 0px 0px 4px;">- queries : AppDatabaseQueries</p><hr size="1" style="border-style:solid;"><p style="margin: 0px 0px 0px 4px;">+ UserListDAOImpl(database : AppDatabase)</p><p style="margin: 0px 0px 0px 4px;">+ getUserList(): List&lt;Pair&lt;Int,Channel&gt;&gt;<br>+ addToUserList(index : Int, channel : Channel)</p><p style="margin: 0px 0px 0px 4px;">+ removeChannelFromUserList(channel : Channel)&nbsp;</p><p style="margin: 0px 0px 0px 4px;">+&nbsp;<span style="background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));">removeChannelFromUserList(position : Int)&nbsp;</span></p><p style="margin: 0px 0px 0px 4px;">+ clearUserList()</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="3647.5" y="960" width="320" height="170" as="geometry"/>
+</mxCell>
+<mxCell id="26" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i></p><p style="margin:0px;margin-top:4px;text-align:center;"><b>UserListDAO</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin: 0px 0px 0px 4px;">+ getUserList(): List&lt;Pair&lt;Int,Channel&gt;&gt;<br>+ addToUserList(index : Int, channel : Channel)</p><p style="margin: 0px 0px 0px 4px;">+ removeChannelFromUserList(channel : Channel)&nbsp;</p><p style="margin: 0px 0px 0px 4px;">+&nbsp;<span style="background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));">removeChannelFromUserList(position : Int)&nbsp;</span></p><p style="margin: 0px 0px 0px 4px;">+ clearUserList()&nbsp;</p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="3650" y="520" width="315" height="150" as="geometry"/>
+</mxCell>
+<mxCell id="27" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i><br><b>ChannelsProviderIF</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ getChannels( parameter : ServiceParameter ) : List&lt;Channel&gt;<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="498.75" y="520" width="362.5" height="100" as="geometry"/>
+</mxCell>
+<mxCell id="28" value="<p style="margin:0px;margin-top:4px;text-align:center;"><i>&lt;&lt;Interface&gt;&gt;</i><br><b>ChannelsProviderFactoryIF</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ getChannelProvider(type: ChannelType): ChannelsProviderIF<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="-480" y="520" width="413" height="100" as="geometry"/>
+</mxCell>
+<mxCell id="29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" edge="1" source="36" target="28" parent="1">
+<mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" edge="1" source="36" target="12" parent="1">
+<mxGeometry relative="1" as="geometry">
+<mxPoint x="60" y="1285" as="targetPoint"/>
+<Array as="points">
+<mxPoint x="-186" y="1280"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="31" value="create" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="30">
+<mxGeometry x="0.4992" y="5" relative="1" as="geometry">
+<mxPoint x="-1" as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" edge="1" source="36" target="14" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="-273" y="1440"/>
+<mxPoint x="683" y="1440"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="33" value="create" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="32">
+<mxGeometry x="-0.181" y="-5" relative="1" as="geometry">
+<mxPoint as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" edge="1" source="36" target="16" parent="1">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="-361" y="1520"/>
+<mxPoint x="1166" y="1520"/>
+</Array>
+</mxGeometry>
+</mxCell>
+<mxCell id="35" value="create" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="34">
+<mxGeometry x="-0.3114" y="-2" relative="1" as="geometry">
+<mxPoint x="-1" as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="36" value="<p style="margin:0px;margin-top:4px;text-align:center;"><br><b>ChannelsProviderFactory</b></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;"><br></p><hr size="1" style="border-style:solid;"><p style="margin:0px;margin-left:4px;">+ getChannelProvider(type: ChannelType): ChannelsProviderIF<br></p>" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+<mxGeometry x="-477.75" y="960" width="408.5" height="100" as="geometry"/>
+</mxCell>
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

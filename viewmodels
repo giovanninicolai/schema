@@ -1,0 +1,191 @@
+sealed class UIState<out S> {
+    object Idle : UIState<Nothing>()
+    object Loading : UIState<Nothing>()
+    data class Success<S>(val data : S) : UIState<S>()
+    data class Error(val message : String) : UIState<Nothing>()
+}
+
+sealed class UIStateLoadingData<out L,out S> {
+    object Idle : UIStateLoadingData<Nothing,Nothing>()
+    data class Loading<L>(val data : L) : UIStateLoadingData<L,Nothing>()
+    data class Success<S>(val data : S) : UIStateLoadingData<Nothing,S>()
+    data class Error(val message : String) : UIStateLoadingData<Nothing,Nothing>()
+}
+
+class FetchViewModel(
+    private val fetchChannelsUseCase: SuspendUseCase<ServiceParameter, Result<Unit>>
+) : ViewModel() {
+
+    private val _fetchState = MutableStateFlow<UIState<Unit>>(UIState.Idle)
+    val fetchState: StateFlow<UIState<Unit>> = _fetchState.asStateFlow()
+
+    fun fetchChannels(parameter: ServiceParameter) {
+        _fetchState.value = UIState.Loading
+        viewModelScope.launch(appDispatchers.io) {
+            val result= fetchChannelsUseCase.execute(parameter)
+            _fetchState.emit ( result.fold(
+                onSuccess = { UIState.Success(Unit) },
+                onFailure = { UIState.Error("Errore nel fetch dei canali") }
+            ))
+        }
+    }
+
+    fun reset(){
+        _fetchState.value= UIState.Idle
+    }
+
+}
+
+class UserListViewModel(
+    private val getUserListUseCase: SuspendUseCase<Unit,Result<List<Pair<Int,Channel>>>>,
+    private val updateUserListUseCase: SuspendUseCase<Pair<Int,Channel>,Result<Unit>>,
+    private val removeFromUserListUseCase: SuspendUseCase<Channel,Result<Unit>>,
+    private val clearUserListUseCase: SuspendUseCase<Unit,Result<Unit>>
+)  : ViewModel(){
+
+    private val _userListState = MutableStateFlow<UIState<List<Pair<Int,Channel>>>>(UIState.Idle)
+    val userListState : StateFlow<UIState<List<Pair<Int,Channel>>>> = _userListState.asStateFlow()
+
+     fun getUserList(){
+         viewModelScope.launch(appDispatchers.io) {
+             _userListState.emit(getUserListUseCase.execute(Unit).fold(
+                 onSuccess = { UIState.Success(it) },
+                 onFailure = { UIState.Error("Errore nel recuper della user list") }
+             ))
+             println(_userListState.value) //check
+         }
+    }
+
+    fun addToUserList(index : Int, channel : Channel){
+        _userListState.value= UIState.Loading
+        viewModelScope.launch(appDispatchers.io) {
+            updateUserListUseCase.execute(index to channel).fold(
+                onSuccess = {getUserList()},
+                onFailure = {_userListState.emit(UIState.Error("Errore nell'aggiunta del canale alla userlist"))}
+            )
+        }
+    }
+
+    fun removeFromUserList(channel: Channel){
+        _userListState.value= UIState.Loading
+        viewModelScope.launch(appDispatchers.io) {
+            removeFromUserListUseCase.execute(channel).fold(
+                onSuccess = {getUserList()},
+                onFailure = {_userListState.emit(UIState.Error("Errore nella rimozione della userlist"))}
+            )
+        }
+    }
+
+    fun clearUserList(){
+        _userListState.value= UIState.Loading
+        viewModelScope.launch(appDispatchers.io) {
+            clearUserListUseCase.execute(Unit).fold(
+                onSuccess = {getUserList()},
+                onFailure = {_userListState.emit(UIState.Error("Errore nella clear della userlist"))}
+            )
+        }
+    }
+}
+
+class ServiceParameterViewModel(
+    private val getOAuth2UseCase: UseCase<ChannelType, Result<Url>>
+) : ViewModel() {
+    private val _serviceParameterState = MutableStateFlow<UIStateLoadingData<Url,ServiceParameter>>(UIStateLoadingData.Idle)
+    val serviceParameterState: StateFlow<UIStateLoadingData<Url,ServiceParameter>> = _serviceParameterState.asStateFlow()
+
+    fun startAuth(channelType: ChannelType) {
+        _serviceParameterState.value = getOAuth2UseCase.execute(channelType).fold(
+            onSuccess = { UIStateLoadingData.Loading(data = it) },
+            onFailure = { UIStateLoadingData.Error("Tipo canale non valido") }
+        )
+    }
+
+    fun onCookiesReceived(cookie : String){
+        val regex = Regex("(youtube_token|twitch_token)=([^;]+)")
+        val match = regex.find(cookie)
+
+        if (match != null) {
+            val tokenType = match.groupValues[1]  // "youtube_token" o "twitch_token"
+            val tokenValue = match.groupValues[2] // Il valore del token
+            println("serviceparameter: $tokenValue")
+            when (tokenType) {
+                "youtube_token" -> {
+                    _serviceParameterState.value = YoutubeParameter.create(tokenValue).fold(
+                        onSuccess = { UIStateLoadingData.Success(it) },
+                        onFailure = { UIStateLoadingData.Error("Token Non Valido") }
+                    )
+                }
+                "twitch_token" -> {
+                    _serviceParameterState.value = TwitchParameter.create(tokenValue).fold(
+                        onSuccess = { UIStateLoadingData.Success(it) },
+                        onFailure = { UIStateLoadingData.Error("Token Non Valido") }
+                    )
+                }
+                else -> {
+                    _serviceParameterState.value= UIStateLoadingData.Error("Token Sconosciuto")
+                }
+            }
+        } else {
+            _serviceParameterState.value= UIStateLoadingData.Error("Token Non Trovato")
+        }
+    }
+
+
+    fun createM3UParameter(parameter : String){
+        _serviceParameterState.value = M3UParameter.create(parameter).fold(
+            onSuccess = {UIStateLoadingData.Success(it)},
+            onFailure = {UIStateLoadingData.Error("Url m3u non valido")}
+        )
+    }
+
+    fun reset(){
+        _serviceParameterState.value= UIStateLoadingData.Idle
+    }
+
+
+}
+
+
+class ProviderChannelsViewModel(
+    private val getProviderChannelsUseCase : SuspendUseCase<ChannelType,Result<List<Channel>>>
+) : ViewModel() {
+
+    private val _getProviderState= MutableStateFlow<UIState<List<Pair<ChannelType,List<Channel>>>>>(UIState.Idle)
+    val getProviderState : StateFlow<UIState<List<Pair<ChannelType,List<Channel>>>>> = _getProviderState.asStateFlow()
+
+    fun getProviderChannels(){
+       _getProviderState.value= UIState.Loading
+        viewModelScope.launch(appDispatchers.io){
+            val typeAndChannelsPairs : MutableList<Pair<ChannelType,List<Channel>>> = mutableListOf()
+            ChannelType.entries.forEach { channelType ->
+                val result = getProviderChannelsUseCase.execute(channelType)
+                result.fold(
+                    onSuccess = { typeAndChannelsPairs.add(channelType to it) },
+                    onFailure = {}
+                )
+            }
+            _getProviderState.emit(
+                when{
+                    typeAndChannelsPairs.isNotEmpty()-> UIState.Success(typeAndChannelsPairs)
+                    else-> UIState.Error("Nessuna Lista Provider Trovata")
+                }
+            )
+            println("${_getProviderState.value}")
+        }
+    }
+
+    fun reset(){
+        _getProviderState.value=UIState.Idle
+    }
+
+}
+
+class PlayerViewModel : ViewModel() {
+    private val _channel = MutableStateFlow<Channel?>(null)
+    val channel: StateFlow<Channel?> get() = _channel
+
+    fun setChannel(channel: Channel){
+        _channel.value=channel
+    }
+
+}

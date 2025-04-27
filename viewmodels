@@ -1,3 +1,32 @@
+val presentationModule = module {
+
+    viewModel{
+        FetchViewModel(
+            get(named("fetchChannelsUseCase"))
+        )
+    }
+
+    viewModel{
+        ProviderChannelsViewModel(
+            get(named("getProviderChannelsUseCase"))
+        )
+    }
+
+    viewModel{
+        UserListViewModel(
+            get(named("getUserListUseCase")),get(named("updateUserListUseCase")),
+            get(named("removeFromUserListUseCase")),get(named("clearUserListUseCase"))
+        )
+    }
+
+
+    viewModel { ServiceParameterViewModel(get(named("getOAuth2UseCase"))) }
+
+    viewModel { PlayerViewModel() }
+
+
+}
+
 sealed class UIState<out S> {
     object Idle : UIState<Nothing>()
     object Loading : UIState<Nothing>()

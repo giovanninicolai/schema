@@ -1,0 +1,774 @@
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import compose.project.demo.presentation.view.fetch.FetchScreen
+import compose.project.demo.presentation.view.player.M3UPlayerScreen
+import compose.project.demo.presentation.view.player.TwitchPlayerScreen
+import compose.project.demo.presentation.view.player.YoutubeLivePlayerScreen
+import compose.project.demo.presentation.viewmodel.PlayerViewModel
+import compose.project.demo.presentation.viewmodel.ServiceParameterViewModel
+import compose.project.demo.presentation.viewmodel.ProviderChannelsViewModel
+import compose.project.demo.presentation.viewmodel.UserListViewModel
+
+@Composable
+fun AppNavigation(
+    navController: NavHostController,
+    serviceParameterViewModel: ServiceParameterViewModel,
+    providerChannelsViewModel: ProviderChannelsViewModel,
+    userListViewModel: UserListViewModel,
+    playerViewModel: PlayerViewModel
+) {
+
+    NavHost(navController = navController, startDestination = UIScreen.Splash){//UIScreen.Splash) {
+        composable(UIScreen.Splash) {
+            SplashScreen(serviceParameterViewModel,
+                providerChannelsViewModel,
+                navController
+            )
+        }
+        composable(UIScreen.Fetch) {
+            FetchScreen(
+                navController,
+                serviceParameterViewModel,
+                providerChannelsViewModel
+            )
+        }
+        composable(UIScreen.ProviderChannels) {
+            ProviderChannelsScreen(navController,
+                providerChannelsViewModel,
+                userListViewModel
+            )
+        }
+        composable(UIScreen.UserList) {
+            UserListScreen(navController,userListViewModel,playerViewModel)
+        }
+        composable(UIScreen.M3UPlayer) {
+            M3UPlayerScreen(navController,playerViewModel)
+        }
+        composable(UIScreen.TwitchPlayer) {
+            TwitchPlayerScreen(navController,playerViewModel)
+        }
+        composable(UIScreen.YoutubePlayer) {
+            YoutubeLivePlayerScreen(navController,playerViewModel)
+        }
+        composable(UIScreen.testplayer) {
+           TestPlayerScreen()
+        }
+    }
+}
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+
+import compose.project.demo.presentation.viewmodel.ServiceParameterViewModel
+import compose.project.demo.presentation.viewmodel.ProviderChannelsViewModel
+import compose.project.demo.presentation.viewmodel.UIState
+
+@Composable
+fun SplashScreen(
+    serviceParameterViewModel: ServiceParameterViewModel,
+    providerChannelsViewModel: ProviderChannelsViewModel,
+    navController: NavController
+){
+    val serviceParameterState by serviceParameterViewModel.serviceParameterState.collectAsState()
+    val providerChannelsState by providerChannelsViewModel.getProviderState.collectAsState()
+    println("splash")
+    println("splash ${serviceParameterViewModel.hashCode()}")
+    println("deeplink da splash $serviceParameterState")
+
+    LaunchedEffect(Unit) {
+
+        providerChannelsViewModel.getProviderChannels()
+    }
+
+    LaunchedEffect(serviceParameterState, providerChannelsState) {
+        println("launchedeffect splash: deeplink:$serviceParameterState prov.ch.:$providerChannelsState")
+        when {
+
+            providerChannelsState is UIState.Success -> {
+                navController.navigate(UIScreen.ProviderChannels){
+                    popUpTo(UIScreen.Splash){inclusive=true}
+                    launchSingleTop=true
+
+                }
+                //providerChannelsViewModel.reset()
+            }
+            providerChannelsState is UIState.Error-> {
+                navController.navigate(UIScreen.Fetch){
+                    popUpTo(UIScreen.Splash){inclusive=true}
+                    launchSingleTop=true
+
+                }
+                providerChannelsViewModel.reset()
+            }
+            else->{}//navController.navigate(UIScreen.ProviderChannels)
+        }
+    }
+    if (providerChannelsState is UIState.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(80.dp),
+                color = Color.White
+            )
+        }
+    }
+
+}
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+import androidx.compose.material.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.navigation.NavController
+import compose.project.demo.presentation.viewmodel.ProviderChannelsViewModel
+import compose.project.demo.presentation.viewmodel.UIState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ExpandCircleDown
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
+import com.github.panpf.sketch.AsyncImage
+import compose.project.demo.domain.model.Channel
+import compose.project.demo.domain.model.ChannelType
+import compose.project.demo.presentation.viewmodel.UserListViewModel
+
+
+
+@Composable
+fun ProviderChannelsScreen(
+    navController: NavController,
+    providerChannelsViewModel: ProviderChannelsViewModel,
+    userListViewModel: UserListViewModel
+) {
+
+    val providerChannelsState by providerChannelsViewModel.getProviderState.collectAsState()
+    val userListState by userListViewModel.userListState.collectAsState()
+
+    LaunchedEffect(Unit){
+        if(providerChannelsState is UIState.Idle){
+            providerChannelsViewModel.getProviderChannels()
+        }
+        userListViewModel.getUserList()
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Imported Channels") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(UIScreen.Fetch) {
+                            popUpTo(UIScreen.ProviderChannels)
+                            launchSingleTop = true
+                        }
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if(userListState is UIState.Success) {
+                        // Pulsante di navigazione in avanti, visibile solo se abilitato
+                        IconButton(
+                            onClick = {
+                                navController.navigate(UIScreen.UserList) {
+                                    popUpTo(UIScreen.ProviderChannels) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                             // Disabilita il pulsante se lo stato è false
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Next"
+                            )
+                        }
+                    }
+                },
+                backgroundColor = Color.Transparent,
+                elevation = 0.dp
+            )
+        },
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues) // Usa paddingValues per la gestione automatica dei padding
+            ) {
+                when (providerChannelsState) {
+                    is UIState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.5f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(80.dp),
+                                color = Color.White
+                            )
+                        }
+                    }
+                    is UIState.Success -> {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            val channelsData = (providerChannelsState as UIState.Success).data
+                            channelsData.forEach { (channelType, channels) ->
+                                item {
+                                    ChannelSection(
+                                        channelType,
+                                        channels,
+                                        userListViewModel
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    is UIState.Error -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Errore nel caricamento dei canali", color = Color.Red)
+                        }
+                    }
+                    is UIState.Idle -> { /* Nessun contenuto */ }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun ChannelSection(
+    channelType: ChannelType,
+    channels: List<Channel>,
+    userListViewModel: UserListViewModel
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { isExpanded = !isExpanded }
+                .padding(start = 8.dp, bottom = 8.dp)
+        ) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Filled.ExpandMore else  Icons.Filled.ExpandLess,
+                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                modifier = Modifier.padding(end = 8.dp, top=8.dp),
+                tint = Color.Black // Cambia il colore se necessario
+            )
+            Text(text = channelType.name, style = MaterialTheme.typography.h6, modifier = Modifier.padding(top=8.dp))
+        }
+
+        if (isExpanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 0.dp, max = 700.dp) // Imposta un'altezza massima
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(channels) { channel ->
+                        ChannelItem(channel, userListViewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChannelItem(channel: Channel, userListViewModel: UserListViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .clickable { showDialog = true } // Mostra il popup al click
+
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                uri = channel.getThumbnail().toString(),
+                contentDescription = "thumbnail",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.Gray, CircleShape)
+                    .background(Color.Black.copy(alpha = 0.4f)) // Overlay nero con opacità
+
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = channel.getName(),
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start
+            )
+        }
+    }
+    // Mostra il popup se showDialog è true
+    if (showDialog) {
+        NumberInputDialog(
+            onDismiss = { showDialog = false },
+            onSave = { pair ->
+                userListViewModel.addToUserList(pair.first,pair.second) // Passa Pair<Int, Channel>
+                showDialog = false
+            },
+            channel = channel
+
+        )
+    }
+}
+
+@Composable
+fun NumberInputDialog(
+    onDismiss: () -> Unit,
+    onSave: (Pair<Int, Channel>) -> Unit, // Modificato per accettare un Pair
+    channel: Channel // Aggiunto per poterlo usare dentro onSave
+
+) {
+    var inputValue by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(text = "Inserisci un numero", style = MaterialTheme.typography.h6)
+
+                // Campo di input per il numero
+                TextField(
+                    value = inputValue,
+                    onValueChange = { newValue ->
+                        // Permette solo numeri
+                        if (newValue.all { it.isDigit() }) {
+                            inputValue = newValue
+                        }
+                    },
+                    label = { Text("Numero") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Pulsante "Annulla"
+                    TextButton(onClick = onDismiss) {
+                        Text("Annulla", color = Color.Black)
+                    }
+
+                    // Pulsante "Salva"
+                    TextButton(
+                        onClick = {
+                            inputValue.toIntOrNull()?.let { numero ->
+                                onSave(Pair(numero, channel)) // Passa Pair<Int, Channel>
+                            }
+                        }
+                    ) {
+                        Text("Salva", color = Color.Black)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.primarySurface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.github.panpf.sketch.AsyncImage
+import compose.project.demo.domain.model.Channel
+import compose.project.demo.presentation.viewmodel.UIState
+import compose.project.demo.presentation.viewmodel.UserListViewModel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.filled.TvOff
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextOverflow
+import compose.project.demo.domain.model.ChannelType
+import compose.project.demo.presentation.viewmodel.PlayerViewModel
+
+@Composable
+fun UserListScreen(
+    navController: NavController,
+    userListViewModel: UserListViewModel,
+    playerViewModel: PlayerViewModel
+) {
+    val userListState by userListViewModel.userListState.collectAsState()
+    var isEditMode by remember { mutableStateOf(false) } // Modalità di eliminazione attiva/disattiva
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("User List") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(UIScreen.ProviderChannels) {
+                            popUpTo(UIScreen.UserList)
+                            launchSingleTop = true
+                        }
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                backgroundColor = Color.Transparent,
+                elevation = 0.dp
+            )
+        },
+        bottomBar = {
+            if(isEditMode) {
+                Button(
+                    onClick = { userListViewModel.clearUserList() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Gray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Clear")
+                }
+            }
+        },
+        content = { paddingValues ->
+            when (userListState) {
+                is UIState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            color= Color.Gray
+                        )
+                    }
+                }
+                is UIState.Success -> {
+                    val userList =
+                        (userListState as UIState.Success<List<Pair<Int, Channel>>>).data
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .clickable(
+                                enabled = isEditMode,
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                isEditMode = false
+                            }
+                    ) {
+                        UserListGrid(
+                            userList = userList,
+                            isEditMode = isEditMode,
+                            onLongPress = { isEditMode = true },
+                            onRemove = { channel -> userListViewModel.removeFromUserList(channel) },
+                            onSelect = { channel -> navigateToPlayer(
+                                channel,
+                                playerViewModel,
+                                navController)
+                            }
+                        )
+                    }
+                }
+                is UIState.Error -> {
+                    navController.navigate(UIScreen.ProviderChannels) {
+                        popUpTo(UIScreen.UserList)
+                        launchSingleTop = true
+                    }
+                }
+                else->{}
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun UserListGrid(
+    userList: List<Pair<Int, Channel>>,
+    isEditMode: Boolean,
+    onLongPress: () -> Unit,
+    onRemove: (Channel) -> Unit,
+    onSelect: (Channel) -> Unit
+) {
+    val gridItems = mutableListOf<Any>()
+    var lastIndex = 0
+
+    userList.forEach { (index, channel) ->
+        for (i in (lastIndex + 1) until index) {
+            gridItems.add(EmptySpace)
+        }
+        gridItems.add(channel)
+        lastIndex = index
+    }
+    val maxIndex = userList.maxOfOrNull { it.first } ?: 0
+    for (i in (lastIndex + 1)..maxIndex) {
+        gridItems.add(EmptySpace)
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(8.dp),
+        modifier = Modifier.wrapContentSize(align = Alignment.TopCenter)
+    ) {
+        items(gridItems.size) { index ->
+            GridItem(
+                item = gridItems[index],
+                isEditMode = isEditMode,
+                onLongPress = onLongPress,
+                onRemove = onRemove,
+                onSelect = onSelect
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun GridItem(
+    item: Any,
+    isEditMode: Boolean,
+    onLongPress: () -> Unit,
+    onRemove: (Channel) -> Unit,
+    onSelect: (Channel) -> Unit
+) {
+    val boxSize = 80.dp // Dimensione fissa per tutte le celle
+
+    Box(
+        modifier = Modifier
+            .size(120.dp) // Dimensione fissa dell'intero elemento della griglia
+            .padding(4.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (item is Channel) {
+                Box(
+                    modifier = Modifier
+                        .size(boxSize) // Dimensione fissa del box circolare
+                        .combinedClickable(
+                            onClick = { onSelect(item) },
+                            onLongClick = onLongPress
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(boxSize) // Manteniamo la stessa dimensione
+                            .clip(CircleShape)
+                            .border(1.dp, Color.Gray, CircleShape)
+                            .background(Color.Black.copy(alpha = 0.4f))
+                    ) {
+                        AsyncImage(
+                            uri = item.getThumbnail().toString(),
+                            contentDescription = "thumbnail",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    if (isEditMode) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(Color.Red)
+                                .clickable {
+                                    onRemove(item)
+                                }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Remove",
+                                tint = Color.White,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = item.getName(),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                // Placeholder per spazi vuoti - mantiene le stesse dimensioni
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(boxSize)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.TvOff,
+                        contentDescription = "Placeholder",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Spazio vuoto equivalente al testo
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+object EmptySpace
+
+fun navigateToPlayer(channel : Channel, playerViewModel: PlayerViewModel, navController: NavController){
+    playerViewModel.setChannel(channel)
+    when(channel.getType()){
+        ChannelType.YOUTUBE-> {
+            navController.navigate(UIScreen.YoutubePlayer){
+                popUpTo(UIScreen.UserList)
+                launchSingleTop = true
+            }
+        }
+        ChannelType.TWITCH-> {
+            navController.navigate(UIScreen.TwitchPlayer){
+                popUpTo(UIScreen.UserList)
+                launchSingleTop = true
+            }
+        }
+        ChannelType.M3U-> {
+            navController.navigate(UIScreen.M3UPlayer) {
+                popUpTo(UIScreen.UserList)
+                launchSingleTop = true
+            }
+        }
+    }
+}
+
+                          
+object UIScreen {
+    val Fetch="FetchScreen"
+    val ProviderChannels="ProviderChannelsScreen"
+    val Splash= "SplashScreen"
+    val UserList = "UserListScreen"
+    val YoutubePlayer= "YoutubeLivePlayerScreen"
+    val TwitchPlayer= "TwitchPlayerScreen"
+    val M3UPlayer= "M3UPlayerScreen"
+}
